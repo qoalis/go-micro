@@ -15,7 +15,7 @@ import (
 	TenantLoader TenantLoader
 }*/
 
-const DefaultMigrationsTable = "db_version"
+const DefaultMigrationsTable = "_db_version"
 
 type DataSourceMigrations interface {
 	Migrate(fs fs.FS, location string, migrationsTable string)

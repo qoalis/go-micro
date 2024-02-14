@@ -18,6 +18,10 @@ func Authenticated() micro.MiddlewareFunc {
 	}
 }
 
+func Admin() micro.MiddlewareFunc {
+	return AuthenticatedWithRole("admin")
+}
+
 // AuthenticatedWithRole returns a middleware that checks if the user is authenticated and has the given role.
 func AuthenticatedWithRole(roles ...string) micro.MiddlewareFunc {
 	return func(ctx micro.Ctx) error {

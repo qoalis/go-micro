@@ -76,25 +76,31 @@ func (app *App) Init(features []Feature) *App {
 		})
 	}
 
+	bootstrap := h.Map{}
 	for _, feat := range features {
-		configureFeature(app, feat)
+		configureFeature(app, feat, bootstrap)
 	}
 
 	return app
 }
 
-func configureFeature(app *App, feat Feature) {
+func configureFeature(app *App, feat Feature, bootstrap h.Map) {
+	if _, ok := bootstrap[feat.Name]; ok {
+		return
+	}
+
 	//TODO: detect cylic dependencies
 	if feat.DependsOn != nil {
 		for _, dep := range feat.DependsOn {
-			configureFeature(app, dep)
+			configureFeature(app, dep, bootstrap)
 		}
 	}
 	// migratioos
 	if feat.MigrationFS != nil {
 		for _, tenant := range app.Env.TenantLoader.GetTenant() {
 			ds := app.Env.DataSources[tenant]
-			prefix := fmt.Sprintf("%s_%s", feat.Name, DefaultMigrationsTable)
+			//prefix := fmt.Sprintf("%s_%s", feat.Name, DefaultMigrationsTable)
+			prefix := DefaultMigrationsTable
 			if app.Env.MultiTenant {
 				if tenant == DefaultTenantId {
 					ds.Migrate(feat.MigrationFS, "db/shared", prefix)
@@ -102,14 +108,16 @@ func configureFeature(app *App, feat Feature) {
 					ds.Migrate(feat.MigrationFS, "db/tenant", prefix)
 				}
 			} else {
-				ds.Migrate(feat.MigrationFS, "db/shared", prefix)
-				ds.Migrate(feat.MigrationFS, "db/tenant", prefix)
+				ds.Migrate(feat.MigrationFS, "db", prefix)
+				ds.Migrate(feat.MigrationFS, "db", prefix)
 			}
 		}
 	}
 	if feat.Configure != nil {
 		feat.Configure(app)
 	}
+
+	bootstrap[feat.Name] = true
 }
 
 func (app *App) AddShutdownListener(listener func()) {
