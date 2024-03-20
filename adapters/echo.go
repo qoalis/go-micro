@@ -234,11 +234,11 @@ func NewEchoAdapter(env *micro.Env, config micro.RouterConfig) micro.Router {
 					auth.Permissions = strings.Split(value.(string), ",")
 				}
 				if value, ok := h.MapLookup(data, "tenant", "tenant_id", "tenant-id", "tenantId"); ok {
-					log.Infof("tenant found in jwt token: %s", value.(string))
+					log.Debugf("tenant found in jwt token: %s", value.(string))
 					c.Set(micro.TenantId, value.(string))
 				}
 
-				log.Infof("current request is fully authenticated")
+				log.Debugf("current request is fully authenticated")
 				c.Set(micro.AuthKey, auth)
 				return next(c)
 			}
