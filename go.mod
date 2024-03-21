@@ -1,6 +1,6 @@
 module github.com/qoalis/go-micro
 
-go 1.22
+go 1.21
 
 require (
 	github.com/allegro/bigcache/v3 v3.1.0
