@@ -3,7 +3,7 @@ version: "3"
 tasks:
   install:
     cmds:
-      - go mod tidy -compat=1.21
+      - go mod tidy
   upgrade:
     cmds:
       - go get -u ./...
@@ -12,4 +12,4 @@ tasks:
       - go clean -modcache
   tidy: # task tidy
     cmds:
-      - go mod tidy -compat=1.21
+      - go mod tidy

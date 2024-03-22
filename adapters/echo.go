@@ -171,12 +171,15 @@ func NewEchoAdapter(env *micro.Env, config micro.RouterConfig) micro.Router {
 			spec.Schemes = []string{"https"}
 			host = h.GetEnv("APP_PUBLIC_DOMAIN", "APP_URL", "RAILWAY_PUBLIC_DOMAIN")
 			if host == "" {
-				host = fmt.Sprintf("localhost:%s", h.GetEnvOrDefault("PORT", "8080"))
+				host = fmt.Sprintf("localhost:%d", env.ServerPort)
 				log.Warnf("NO EXTERNAL URL DETECTED FOR THIS APPLICATION, FALLING BACK TO %s", host)
 			}
 		} else {
-			spec.Schemes = []string{"http", "https"}
-			host = h.GetEnvOrDefault("APP_URL", "localhost:8080")
+			spec.Schemes = []string{"http"}
+			host = h.GetEnv("APP_PUBLIC_DOMAIN", "APP_URL")
+			if host == "" {
+				host = fmt.Sprintf("localhost:%d", env.ServerPort)
+			}
 		}
 		log.Infof("SWAGGER SPEC HOST: %s", host)
 		spec.Host = host

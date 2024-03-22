@@ -1,7 +1,6 @@
 package micro
 
 import (
-	gerror "errors"
 	"fmt"
 	"github.com/qoalis/go-micro/util/errors"
 	"github.com/qoalis/go-micro/util/h"
@@ -36,7 +35,8 @@ type DataSource interface {
 	Ping() error
 	Delete(any, Query) (int64, error)
 	Exists(any, Query) (bool, error)
-	First(any, Query) error
+	First(any, Query) (bool, error)
+	FirstBy(target any, query string, args ...any) (bool, error)
 	Find(any, Query) error
 	FindAll(any) error
 	Count(any, Query) (int64, error)
@@ -78,9 +78,9 @@ func (r *SimpleRepo[T]) Count(q ...Query) (int64, error) {
 
 func (r *SimpleRepo[T]) FirstBy(q string, args ...any) (*T, error) {
 	var model *T
-	err := r.db.First(&model, Query{W: q, Args: args})
-	if err != nil && gerror.Is(err, ErrRecordNotFound) {
-		return nil, nil
+	found, err := r.db.First(&model, Query{W: q, Args: args})
+	if err != nil || !found {
+		return nil, err
 	}
 	return model, err
 }

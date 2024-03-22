@@ -172,7 +172,12 @@ func (ctx Ctx) Authenticate(auth Authentication, tenant string) error {
 	return nil
 }
 
+// SharedDB @deprecated
 func (e Env) SharedDB() DataSource {
+	return e.DefaultDB()
+}
+
+func (e Env) DefaultDB() DataSource {
 	ds := e.DataSources[DefaultTenantId]
 	if ds == nil {
 		log.Fatalf("no shared db found")

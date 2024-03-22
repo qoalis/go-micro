@@ -59,15 +59,22 @@ func (a adapter) FindAll(target any) error {
 	return res.Error
 }
 
-func (a adapter) First(model any, q micro.Query) error {
+func (a adapter) First(model any, q micro.Query) (bool, error) {
 	res := a.buildQuery(model, q).First(model)
 	if res.Error == gorm.ErrRecordNotFound {
-		return micro.ErrRecordNotFound
+		return false, nil
+	}
+	if res.Error != nil {
+		return false, res.Error
 	}
 	if res.RowsAffected == 0 {
-		return micro.ErrRecordNotFound
+		return false, nil
 	}
-	return res.Error
+	return true, nil
+}
+
+func (a adapter) FirstBy(target any, query string, args ...any) (bool, error) {
+	return a.First(target, micro.Query{W: query, Args: args})
 }
 
 func (a adapter) Count(model any, q micro.Query) (int64, error) {

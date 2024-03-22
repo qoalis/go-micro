@@ -71,11 +71,11 @@ func UpdateEntity[T any](c micro.Ctx, input any, l ...micro.EntityListener[T]) T
 	db := c.CurrentDB()
 	id := h.UnwrapStr(h.F(reflections.GetField(input, "Id")))
 	var entity T
-	err := db.First(&entity, micro.Query{
+	found := h.F(db.First(&entity, micro.Query{
 		W:    "id = ?",
 		Args: []any{id},
-	})
-	h.RaiseAny(err)
+	}))
+	h.RaiseIf(!found, errors.Functional("entity_not_found"))
 	h.RaiseAny(h.CopyAllFields(&entity, input, true))
 	if len(l) > 0 {
 		h.RaiseAny(l[0].PreUpdate(&entity))
